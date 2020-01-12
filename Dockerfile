@@ -8,7 +8,11 @@ RUN wget https://github.com/phaag/nfdump/archive/v1.6.18.tar.gz
 RUN tar -xf v1.6.18.tar.gz
 
 # compiling it and installing it
-RUN cd nfdump-1.6.18 && chmod 777 ./autogen.sh && sh ./autogen.sh && ./configure && make && make install
+RUN cd nfdump-1.6.18 \
+    && chmod 777 ./autogen.sh \
+    && sh ./autogen.sh \
+    && ./configure --enable-sflow --enable-readpcap --enable-nfpcapd \
+    && make && make install
 
 # cleaning the mess
 RUN rm v1.6.18.tar.gz && rm -rf nfdump-1.6.18
@@ -25,9 +29,6 @@ RUN pip3 install -e .
 
 RUN mv /usr/local/lib/libnfdump* /usr/lib/
 RUN PATH=$PATH:/usr/local/bin
-
-# mount shared volume
-
 
 # run nfdump on data
 CMD [ "python3", "-u", "pcap2netflow.py" ]

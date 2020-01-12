@@ -15,45 +15,43 @@ def run_cmd(cmd, file=None):
         subprocess.run(cmd, check=True, stdout=sys.stdout, stderr=sys.stderr)
 
 
-def pcap_2_nflow(pcap_file_path, dir_4_nflow):
+def pcap_2_nflow(pcap_file_path):
+    nflow_dir = pcap_file_path.replace('.pcap', 'pcap.nflow') # TODO : this is far from being a good way to do that
+    os.mkdir(nflow_dir)
     run_cmd(
-        ["nfcapd", "-r", "%s" % pcap_file_path, "-l", "%s" % dir_4_nflow,]
+        [
+            "nfpcapd",
+            "-r",
+            "%s" % pcap_file_path,
+            "-l",
+            "%s" % nflow_dir,
+            ]
     )
+    return nflow_dir
 
 
-def nflow_2_netflows(dir_4_nflow, dir_4_netflows, file_by_file=True):
-    if file_by_file:
-        for f in sorted(os.listdir(dir_4_nflow)):
-            run_cmd(
-                [
-                    "nfdump",
-                    "-B",
-                    "-r",
-                    "%s" % os.path.join(dir_4_nflow, f),
-                    "-b",
-                    "-o",
-                    "extended",
-                    "-o",
-                    "csv",
-                ],
-                "%s.csv" % os.path.join(dir_4_netflows, f),
-            )
-    else:
-        raise Exception("not yet implemented")
+def nflow_2_netflows(dir_4_nflows):
+    output_file_path = "%s.csv" % dir_4_nflows.replace('.nflow', '.netflow')
+    run_cmd(
+        [
+            "nfdump",
+            "-B",
+            "-R",
+            "%s" % dir_4_nflows,
+            "-b",
+            "-o",
+            "extended",
+            "-o",
+            "csv",
+            ],
+            output_file_path
+        )
+    shutil.rmtree(dir_4_nflows, ignore_errors=False, onerror=None)
+    return output_file_path
 
 
-def pcap_2_netflows(
-    pcap_file_path, dir_4_netflows, dir_4_nflow=None, delete_dir4nflow=False
-):
-    if dir_4_nflow is None:
-        dir_4_nflow = "./dir_4_nflow"
-        delete_dir4nflow = True
-    if not os.path.isdir(dir_4_nflow):
-        os.mkdir(dir_4_nflow)
-    pcap_2_nflow(pcap_file_path, dir_4_nflow)
-    nflow_2_netflows(dir_4_nflow, dir_4_netflows)
-    if delete_dir4nflow:
-        shutil.rmtree(dir_4_nflow, ignore_errors=False, onerror=None)
+def pcap_2_netflows(pcap_file_path):
+    nflow_2_netflows(pcap_2_nflow(pcap_file_path))
 
 
 if __name__ == "__main__":
@@ -69,6 +67,5 @@ if __name__ == "__main__":
                     % (file, file_path, os.path.join(target_dir, file))
                 )
                 pcap_2_netflows(
-                    os.path.join(file_path),
-                    dir_4_netflows=os.path.join(target_dir, file),
+                    os.path.join(file_path)
                 )
