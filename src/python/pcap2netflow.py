@@ -1,17 +1,9 @@
 import os
-from download_netflow2 import URL_IN_DIR_OUT
 import datetime, subprocess, sys
 import shutil
 
-# ROOT_DIR = "/private/nfs/09 JEUX DE DONNEES/CU-LID/netflow-public-1/2009_CDX_Datasets"
-# ROOT_DIR = "/Users/romainburgot/Downloads/2009_CDX_Datasets"
-
-ROOT_DIR = "/private/nfs/09 JEUX DE DONNEES/CU-LID/netflow-public-2"
-
-ROOT_DIR = "/Users/romainburgot/Downloads/pcap_big_2017"
-
-DIR_4_NFLOW = os.path.join(ROOT_DIR, "nflow")
-DIR_4_NETFLOWS = os.path.join(ROOT_DIR, "netflows")
+ROOT_DIR = "/data"
+target_dir = os.path.join(ROOT_DIR, "extracted_from_pcap")
 
 
 def run_cmd(cmd, file=None):
@@ -25,17 +17,11 @@ def run_cmd(cmd, file=None):
 
 def pcap_2_nflow(pcap_file_path, dir_4_nflow):
     run_cmd(
-        [
-            "nfpcapd",
-            "-r",
-            "%s" % pcap_file_path,
-            "-l",
-            "%s" % dir_4_nflow,
-        ]
+        ["nfcapd", "-r", "%s" % pcap_file_path, "-l", "%s" % dir_4_nflow,]
     )
 
 
-def nflow_2_netflows(dir_4_nflow, dir_4_netflows, file_by_file=False):
+def nflow_2_netflows(dir_4_nflow, dir_4_netflows, file_by_file=True):
     if file_by_file:
         for f in sorted(os.listdir(dir_4_nflow)):
             run_cmd(
@@ -56,7 +42,9 @@ def nflow_2_netflows(dir_4_nflow, dir_4_netflows, file_by_file=False):
         raise Exception("not yet implemented")
 
 
-def pcap_2_netflows(pcap_file_path, dir_4_netflows, dir_4_nflow=None, delete_dir4nflow=False):
+def pcap_2_netflows(
+    pcap_file_path, dir_4_netflows, dir_4_nflow=None, delete_dir4nflow=False
+):
     if dir_4_nflow is None:
         dir_4_nflow = "./dir_4_nflow"
         delete_dir4nflow = True
@@ -69,15 +57,18 @@ def pcap_2_netflows(pcap_file_path, dir_4_netflows, dir_4_nflow=None, delete_dir
 
 
 if __name__ == "__main__":
-    # used to convert netflow-public-2
-
-    DIR_PCAP = os.path.join(ROOT_DIR, "pcap")
-    assert os.path.exists(DIR_PCAP)
-    os.mkdir(DIR_4_NFLOW)
-    for _, real_pcap_dir in URL_IN_DIR_OUT:
-        for f in sorted(os.listdir(real_pcap_dir)):
-            if not (f in [".", ".."]):
-                pcap_2_nflow(os.path.join(real_pcap_dir, f), DIR_4_NFLOW)
-
-    os.mkdir(DIR_4_NETFLOWS)
-    nflow_2_netflows(DIR_4_NFLOW, DIR_4_NETFLOWS)
+    assert os.path.exists(ROOT_DIR)
+    if not os.path.isdir(target_dir):
+        os.mkdir(target_dir)
+    for r, d, f in os.walk(ROOT_DIR):
+        for file in f:
+            file_path = os.path.join(r, file)
+            if os.path.isfile(file_path) and file_path.endswith(".pcap"):
+                print(
+                    "Extracting data from <%s> : <%s> -> <%s>"
+                    % (file, file_path, os.path.join(target_dir, file))
+                )
+                pcap_2_netflows(
+                    os.path.join(file_path),
+                    dir_4_netflows=os.path.join(target_dir, file),
+                )
