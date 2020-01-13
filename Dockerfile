@@ -28,7 +28,6 @@ RUN pip3 install -e .
 # >
 
 RUN mv /usr/local/lib/libnfdump* /usr/lib/
-RUN PATH=$PATH:/usr/local/bin
 
 # run nfdump on data
 CMD [ "python3", "-u", "pcap2netflow.py" ]

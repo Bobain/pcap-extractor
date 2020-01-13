@@ -16,22 +16,21 @@ def run_cmd(cmd, file=None):
 
 
 def pcap_2_nflow(pcap_file_path):
-    nflow_dir = pcap_file_path.replace('.pcap', 'pcap.nflow') # TODO : this is far from being a good way to do that
+    # TODO : couldn't we pipe processes instead of writing intermediry files to disk?
+    nflow_dir = pcap_file_path.replace(ROOT_DIR, target_dir).replace(
+        ".pcap", "pcap.nflow"
+    )
     os.mkdir(nflow_dir)
     run_cmd(
-        [
-            "nfpcapd",
-            "-r",
-            "%s" % pcap_file_path,
-            "-l",
-            "%s" % nflow_dir,
-            ]
+        ["nfpcapd", "-r", "%s" % pcap_file_path, "-l", "%s" % nflow_dir,]
     )
     return nflow_dir
 
 
 def nflow_2_netflows(dir_4_nflows):
-    output_file_path = "%s.csv" % dir_4_nflows.replace('.nflow', '.netflow')
+    output_file_path = "%s.csv" % dir_4_nflows.replace(ROOT_DIR, target_dir).replace(
+        ".nflow", ".netflow"
+    )
     run_cmd(
         [
             "nfdump",
@@ -43,9 +42,9 @@ def nflow_2_netflows(dir_4_nflows):
             "extended",
             "-o",
             "csv",
-            ],
-            output_file_path
-        )
+        ],
+        output_file_path,
+    )
     shutil.rmtree(dir_4_nflows, ignore_errors=False, onerror=None)
     return output_file_path
 
@@ -66,6 +65,4 @@ if __name__ == "__main__":
                     "Extracting data from <%s> : <%s> -> <%s>"
                     % (file, file_path, os.path.join(target_dir, file))
                 )
-                pcap_2_netflows(
-                    os.path.join(file_path)
-                )
+                pcap_2_netflows(os.path.join(file_path))
