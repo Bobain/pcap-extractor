@@ -6,7 +6,7 @@ ARG3=${3:-pcap_extractor}
 
 docker stop $ARG3
 docker rm $ARG3
-docker build -t $ARG3 .
+docker build -f ./src/docker/Dockerfile -t $ARG3 .
 # docker run --name=$3 -it $ARG3 /bin/bash
 docker run --name=$3 --cpuset-cpus="0-2" -v "$1":/data_in -v "$2":/data_out
 # -v /Users/romainburgot/tmp:/tmp $ARG3

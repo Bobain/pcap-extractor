@@ -1,0 +1,25 @@
+FROM python:3.7.1
+
+RUN apt-get update
+# decompressing and other stuff tools
+RUN apt-get install -y unzip unrar-free p7zip-full
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y wireshark
+
+
+RUN apt-get install -y openjdk-8-jdk
+
+#
+RUN apt-get install -y maven
+
+#
+RUN git clone https://github.com/ahlashkari/CICFlowMeter.git
+RUN cd CICFlowMeter && git checkout bac93fcf2168b8eb10067ece1f894a3cd48595bb
+RUN mvn install:install-file -Dfile=/CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425/jnetpcap.jar -DgroupId=org.jnetpcap -DartifactId=jnetpcap -Dversion=1.4.1 -Dpackaging=jar
+
+RUN wget https://services.gradle.org/distributions/gradle-6.1.1-bin.zip -P /tmp
+RUN unzip -d /opt/gradle /tmp/gradle-*.zip
+
+ENV GRADLE_HOME "/opt/gradle/gradle-6.1.1"
+ENV PATH "$PATH:/${GRADLE_HOME}/bin"
+
+RUN cd CICFlowMeter && gradle execute
