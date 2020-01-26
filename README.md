@@ -1,3 +1,3 @@
 # pcap-extractors : Extracting data from pcap files
 
-sh run.sh <my_directory with .pcap files to convert>
+sh run.sh <my_directory with .pcap files to convert> <directory for extracted data>
