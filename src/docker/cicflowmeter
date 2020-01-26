@@ -22,4 +22,8 @@ RUN unzip -d /opt/gradle /tmp/gradle-*.zip
 ENV GRADLE_HOME "/opt/gradle/gradle-6.1.1"
 ENV PATH "$PATH:/${GRADLE_HOME}/bin"
 
-RUN cd CICFlowMeter && gradle execute
+RUN rm /CICFlowMeter/build.gradle
+COPY src/gradle/build.gradle /CICFlowMeter/build.gradle
+
+RUN cd CICFlowMeter && chmod +x gradlew && ./gradlew && gradle build
+# && gradle run
