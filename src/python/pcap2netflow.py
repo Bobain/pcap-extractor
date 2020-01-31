@@ -2,8 +2,8 @@ import os
 import shutil
 import warnings
 import psutil
-from .utils import clean_then_raise, run_cmd, replace_path_prefix
-from .decompressing import unrar, unzip
+from utils import clean_then_raise, run_cmd, replace_path_prefix
+from decompressing import unrar, unzip
 from multiprocessing import Pool
 
 SKIP_ERRORS4unbca = True

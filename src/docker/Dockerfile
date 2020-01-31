@@ -2,12 +2,12 @@ FROM python:3.7.1
 
 RUN apt-get update
 # dependencies for nfdump
-RUN apt-get install -y apt-utils vim bison libtool dh-autoreconf libpcap-dev libghc-bzlib-dev flex
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y apt-utils vim bison libtool dh-autoreconf libpcap-dev libghc-bzlib-dev flex
 # decompressing and other stuff tools
-RUN apt-get install -y unzip unrar-free p7zip-full
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y unzip unrar-free p7zip-full
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y wireshark
 # zeek additional dependencies
-RUN apt-get install -y cmake make gcc g++ bison libssl-dev python-dev swig zlib1g-dev
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y cmake make gcc g++ bison libssl-dev python-dev swig zlib1g-dev
 # WAND tools (libprotoident) additional dependencies
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential libncurses-dev curl apt-transport-https ssl-cert \
     ca-certificates gnupg lsb-release
@@ -66,4 +66,4 @@ RUN pip3 install -e .
 # >
 
 # run nfdump on data
-CMD [ "python3", "-u", "pcap2netflow.py" ] #
+CMD [ "python3", "-u", "pcap2netflow.py" ]
