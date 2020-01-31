@@ -1,0 +1,46 @@
+FROM python:3.7.1
+
+RUN apt-get update
+RUN apt-get install -y apt-utils vim bison libtool dh-autoreconf libpcap-dev libghc-bzlib-dev flex
+# decompressing and other stuff tools
+RUN apt-get install -y unzip unrar-free p7zip-full
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y wireshark
+
+
+RUN apt-get install -y openjdk-8-jdk
+
+#
+RUN apt-get install -y maven
+
+# git clone
+RUN git clone https://github.com/iPAS/CICFlowMeter.git
+# https://github.com/redBorder/CICFlowMeter
+RUN mvn install:install-file -Dfile=/CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425/jnetpcap.jar -DgroupId=org.jnetpcap -DartifactId=jnetpcap -Dversion=1.4.1 -Dpackaging=jar
+
+RUN wget https://services.gradle.org/distributions/gradle-6.1.1-bin.zip -P /tmp
+RUN unzip -d /opt/gradle /tmp/gradle-*.zip
+
+RUN rm /CICFlowMeter/src/main/java/cic/cs/unb/ca/ifm/CICFlowMeter.java
+COPY src/java/CICFlowMeter.java /CICFlowMeter/src/main/java/cic/cs/unb/ca/ifm/CICFlowMeter.java
+
+ENV GRADLE_HOME "/opt/gradle/gradle-6.1.1"
+ENV PATH "$PATH:/${GRADLE_HOME}/bin"
+ENV APP_HOME /CICFlowMeter
+
+WORKDIR /CICFlowMeter
+
+RUN ln -s /CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425/libjnetpcap.so /CICFlowMeter/libjnetpcap.so
+RUN ln -s /CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425/libjnetpcap-pcap100.so /CICFlowMeter/libjnetpcap-pcap100.so
+RUN ln -s /CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425/libjnetpcap.so /usr/lib/libjnetpcap.so
+RUN ln -s /CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425/libjnetpcap-pcap100.so /usr/lib/libjnetpcap-pcap100.so
+RUN mkdir /usr/lib/jvm/java-8-openjdk-amd64/lib/native/ && ln -s /CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425/libjnetpcap.so /usr/lib/jvm/java-8-openjdk-amd64/lib/native/libjnetpcap.so
+RUN ln -s /CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425/libjnetpcap-pcap100.so /usr/lib/jvm/java-8-openjdk-amd64/lib/native/libjnetpcap-pcap100.so
+RUN mkdir /lib/native && ln -s /CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425/libjnetpcap.so /lib/native/libjnetpcap.so
+RUN ln -s /CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425/libjnetpcap-pcap100.so /lib/native/libjnetpcap-pcap100.so
+
+RUN chmod +x gradlew && ./gradlew && gradle build
+RUN mvn package
+
+RUN rm build/scripts/CICFlowMeter && mv CICFlowMeter.revised build/scripts/CICFlowMeter
+
+CMD ["gradle", "execute"]

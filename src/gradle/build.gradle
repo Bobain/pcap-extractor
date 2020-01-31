@@ -36,7 +36,6 @@ sourceSets {
     main {
         java {
             srcDir 'src'
-            srcDir 'src'
             // exclude '**/CICFlowMeter.java'
             exclude '**/App.java'
         }
@@ -103,9 +102,9 @@ task execute(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     String osName = System.getProperty('os.name').toLowerCase()
     if(osName.contains('windows')){
-        jvmArgs '-Djava.library.path=jnetpcap/win/jnetpcap-1.4.r1425'
+        jvmArgs '-Djava.library.path=/CICFlowMeter/jnetpcap/win/jnetpcap-1.4.r1425'
     }else{
-        jvmArgs '-Djava.library.path=jnetpcap/linux/jnetpcap-1.4.r1425'
+        jvmArgs '-Djava.library.path=/CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425'
     }
 }
 
@@ -115,11 +114,11 @@ task exeCMD(type: JavaExec){
     classpath = sourceSets.main.runtimeClasspath
     String osName = System.getProperty('os.name').toLowerCase()
     if(osName.contains('windows')){
-        jvmArgs '-Djava.library.path=jnetpcap/win/jnetpcap-1.4.r1425'
+        jvmArgs '-Djava.library.path=/CICFlowMeter/jnetpcap/win/jnetpcap-1.4.r1425'
     }else{
-        jvmArgs '-Djava.library.path=jnetpcap/linux/jnetpcap-1.4.r1425'
+        jvmArgs '-Djava.library.path=/CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425'
     }
-    //args = ["/home/yzhang29/0a/Capture/", "/home/yzhang29/0a/Capture/out/"]
+    args = ["/data_in", "/data_out"]
 }
 
 
@@ -128,7 +127,7 @@ task cmdScript(type: CreateStartScripts) {
     applicationName = "cfm"
     outputDir = new File(project.buildDir, 'scripts')
     classpath = jar.outputs.files + project.configurations.runtime
-    defaultJvmOpts = ["-Djava.library.path=../lib/native"]
+    defaultJvmOpts = ["-Djava.library.path=/CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r142"]
 }
 
 applicationDistribution.into("bin") {
@@ -140,9 +139,9 @@ applicationDistribution.into("bin") {
 // The Application Plugin
 mainClassName = "cic.cs.unb.ca.ifm.CICFlowMeter"
 applicationName = "CICFlowMeter"
-applicationDefaultJvmArgs = ["-Djava.library.path=../lib/native"]
+applicationDefaultJvmArgs = ["-Djava.library.path=/CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425"]
 
-applicationDistribution.from("jnetpcap/linux/jnetpcap-1.4.r1425") {
+applicationDistribution.from("/CICFlowMeter/jnetpcap/linux/jnetpcap-1.4.r1425") {
     include "*.so"
     into('lib/native')
 }
