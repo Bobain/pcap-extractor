@@ -66,4 +66,4 @@ RUN pip3 install -e .
 # >
 
 # run nfdump on data
-CMD [ "python3", "-u", "pcap2netflow.py" ]
+# CMD [ "python3", "-u", "pcap2zeek_logs.py" ] # pcap2netflow.py

@@ -18,7 +18,6 @@ TARGET_DIR = "/data_out/"
 TEMP_DIR = "/tmp/"
 
 
-
 num_cpus = psutil.cpu_count(logical=False)
 print("Nb CPU : %d" % num_cpus)
 
@@ -48,6 +47,7 @@ def nflow_2_netflows(dir_4_nflows, output_dir_path):
     # )
     #
     # removed "-B", for CIC IDS 2018
+    # removed "-o", "extended",
     for f in sorted(os.listdir(dir_4_nflows)):
         run_cmd(
             [
@@ -55,8 +55,6 @@ def nflow_2_netflows(dir_4_nflows, output_dir_path):
                 "-r",
                 os.path.join(dir_4_nflows, f),
                 "-b",
-                "-o",
-                "extended",
                 "-o",
                 "csv",
             ],
@@ -93,6 +91,7 @@ def ecicids_2018(sub_dir2extract=None):
         condition=lambda x: not (
             x.endswith(".zip")
             | x.endswith(".rar")
+            | x.endswith(".evtx")
             | ("logs.zip" in os.path.split(x)[1])
             | ("pcap.zip" in os.path.split(x)[1])
             | ("pcap.rar" in os.path.split(x)[1])
