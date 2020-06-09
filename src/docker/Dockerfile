@@ -56,10 +56,15 @@ RUN sh github_install.sh https://github.com/wanduow/libflowmanager/archive/v3.0.
 RUN sh github_install.sh https://github.com/wanduow/libprotoident/archive/2.0.14-1.tar.gz "./bootstrap.sh"
 # >
 
+# < installing open JDK 8, needed for spark
+RUN apt-get install -y openjdk-8-jdk
+# >
+
 # < Python
 RUN mkdir /app
 WORKDIR /app/
 COPY requirements.txt /app/
+COPY setup.py /app/
 COPY src/python/ /app/
 RUN pip3 install --no-cache-dir -r requirements.txt
 RUN pip3 install -e .

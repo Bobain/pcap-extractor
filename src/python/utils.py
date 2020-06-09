@@ -131,6 +131,30 @@ def main(root_dir, target_dir, extractor, temp_dir=None):
         raise
 
 
+def is_pcap_file(file_path):
+    root, f = os.path.split(file_path)
+    return (
+        ((root.split(os.path.sep)[-1] == "pcap") or f.endswith(".pcap"))
+        and os.path.isfile(file_path)
+        and not f.startswith(".")
+    )
+
+
+def dir_walk_apply(data_in, data_out, func2apply=None, condition_func=None):
+    if condition_func is None:
+        condition_func = is_pcap_file
+    for root, directories, files in os.walk(data_in):
+        for f in files:
+            file_path = os.path.join(root, f)
+            if condition_func(file_path):
+                dir_path_out = replace_path_prefix(root, data_in, data_out)
+                if not (os.path.exists(dir_path_out)):
+                    os.makedirs(dir_path_out)
+                func2apply(file_path, dir_path_out)
+            else:
+                print("skipping file : <%s>" % file_path)
+
+
 def parallel_extract():
     # unb.ca CIC IDS 2018 : https://www.unb.ca/cic/datasets/ids-2018.html
     if PARALLELIZE:  # far from a good way to parallelize : IDC for now

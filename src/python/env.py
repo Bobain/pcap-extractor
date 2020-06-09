@@ -1,0 +1,5 @@
+ROOT_DIR = "/data_in/"
+TARGET_DIR = "/data_out/"
+TEMP_DIR = "/tmp/"
+SPARK_MASTER = "local[2]"
+JAVA_HOME = "usr/bin/java"
